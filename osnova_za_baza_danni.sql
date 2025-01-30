@@ -39,7 +39,6 @@ CREATE TABLE IF NOT EXISTS pricing (
     id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за ценовите записи
     sports_hall_id INT NOT NULL,            -- ID на спортната зала
     price_per_hour DECIMAL(10, 2) NOT NULL, -- Цена на час
-    discount DECIMAL(10, 2),                -- Отстъпка (по избор)
     CONSTRAINT fk_pricing_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)
 );
 
