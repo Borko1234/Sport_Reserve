@@ -1,24 +1,105 @@
-CREATE SCHEMA IF NOT EXISTS SPORT_RESERVE;
-USE SPORT_RESERVE;
+DROP SCHEMA SPORT_RESERVE CASCADE;
+-- Създаване на схема
+CREATE SCHEMA IF NOT EXISTS sport_reserve;
+SET search_path TO sport_reserve;
+
+-- Таблица за спортни зали
 CREATE TABLE IF NOT EXISTS sports_halls (
-    id INT PRIMARY KEY,       /*Уникален идентификатор за всяка зала*/
-    name VARCHAR(50) NOT NULL,               /* Име на спортната зала*/
-    mobile VARCHAR(15) NOT NULL,			/*Телефон за връзка със спортната зала*/
-    address TEXT NOT NULL,                   /* Адрес на спортната зала*/
-    description TEXT,                        /* Описание на спортната зала*/
-    schedule TEXT,                         /*Работно време на спортната зала*/
-	entry varchar(4) not null                        /*free, paid,both*/
+    id SERIAL PRIMARY KEY,                   -- Уникален идентификатор за всяка зала
+    name VARCHAR(50) NOT NULL,              -- Име на спортната зала
+    mobile VARCHAR(15) NOT NULL,            -- Телефон за връзка със спортната зала
+    address TEXT NOT NULL,                  -- Адрес на спортната зала
+    description TEXT,                       -- Описание на спортната зала
+    entry VARCHAR(4) NOT NULL               -- free, paid, both
 );
+--SCHEDULE TABLE
+CREATE TABLE IF NOT EXISTS schedule(
+	id SERIAL PRIMARY KEY,-- schedule's id we use in the sport_hall_schedule
+	open TIME(0) NOT NULL,
+	close TIME(0) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS sport_hall_schedule(
+	sports_hall_id INT NOT NULL,
+	schedule_id INT NOT NULL,
+	CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)
+	CONSTRAINT fk_schedule FOREIGN KEY (schedule_id) REFERENCES schedule(id)
+);
+
+-- Таблица за потребители
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за потребителите
+    name VARCHAR(100) NOT NULL,             -- Име на потребителя
+    email VARCHAR(100) UNIQUE NOT NULL,     -- Имейл адрес
+    password VARCHAR(255) NOT NULL,         -- Парола
+    role VARCHAR(20) DEFAULT 'user',        -- Роля (user, admin)
+    phone VARCHAR(15)                       -- Телефонен номер (по избор)
+);
+
+-- Таблица за резервации
 CREATE TABLE IF NOT EXISTS reservations (
-    id INT AUTO_INCREMENT PRIMARY KEY,       /* Уникален идентификатор за всяка резервация*/
-    sports_hall_id INT NOT NULL,             /* Свързано ID от таблицата за спортни зали*/
-    date DATETIME NOT NULL,                  /* Дата и час на резервацията*/
-    description TEXT,                        /* Описание на резервацията*/
-    FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)/* Свързване със спортната зала*/
+    id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за всяка резервация
+    sports_hall_id INT NOT NULL,            -- ID на спортната зала
+    user_id INT NOT NULL,                   -- ID на потребителя
+    date TIMESTAMP WITHOUT TIME ZONE NOT NULL,    -- Дата и час на резервацията
+	duration INT NOT NULL,					--запазваме колко време ще е резервацията (в часове),
+    description TEXT,                       -- Описание на резервацията
+    CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id), -- Връзка със sports_halls
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) -- Връзка с users
 );
-INSERT INTO SPORTS_HALLS(ID,NAME,MOBILE,ADDRESS,DESCRIPTION,SCHEDULE,ENTRY)
-VALUES(1001,"Тенис корт „Парк езеро“","0888530357","Бургас, южна част на парк „Езеро“","Намират се в южната част на парк „Езеро“ на 150 метра от морето и 20 минути пеша от центъра на града и е естествено продължение на Морската градина в Бургас и поради това е една от привлекателните за почивка зони на града. За любителите на спорта има на разположение десет тенис корта, разположени на площ от 9500 кв.м., с настилка от шамот, като кортове № 1 и 2 са с рамери 40м./42м., кортове № 3, 4 и 5 са с размери 40м./65м., кортове № 6 и 7 са с размери 40м./42 м., корт № 8 – централен е размер 40м./45м. има обособени две трибуни, които в момента са неизползваеми, кортове № 9 и 10 са с размери 40м./42м. Наскоро възстановената тримодулна тенис стена е с размер 23м./35м. и е разчертана и с шест разчартани полета. В ТК „Парк езеро“ са разположени - временна постройка, предназначена за съблекалня с баня и тоалетна и четири фургона за обслужващия персонал. Спортните клубове по тенис, които ползват кортовете, подават графици на Ръководителя на обекта с цел запазване часове за тренировка и давайки възможност на любители – тенисисти да използват свободните кортове и часове за игра. Кортовете се използват освен за тренировъчна дейност на тенис клубовете, игра на любители тенисисти, но и за провеждане на редица тенис турнири.","понеделник - неделя:  8:00ч. - 20:00ч.","paid"),
- (1002,"Тенис корт „III -та поликлиника“, ул. Гурко","0889348123","ул. „Гурко” в района на бившата Трета поликлиника","Тенис корта е разположен в района на бившата Трета поликлиника на ул. „Гурко” на площ от 1100 кв.м. Разполага с един корт с асфалтова настилка с размери 12 / 24 и една стена с с размери 10м. / 8м. и една стена. Единственият спорт, който се упражнява е тенис на корт.","понеделник - неделя:  8:00ч. - 20:00ч.","paid"),
- (1003,"Плувен комплекс „Флора“"," 0884285425","Приморски парк, Бургас","Плувен комплекс „Флора” се намира в Приморски парк в Бургас, до куполите на емблематичния за града изложбен център Флора. В експлоатация е от средата на 2010 година. Плувният комплекс разполага с два открити басейна, единият от които е 50-метров със 7 коридора, а другият – 20-метров (за деца), което го прави идеалното място за спорт и почивка на малки и големи. И в двата басейна водата се подгрява чрез газова инсталация, което позволява почти 8-месечна употреба. Средно на година около 500 деца се научават да плуват в басейните на комплекса, а през лятото той е домакин на редица спортни турнири. Тук се провеждат занимания на детски школи и спортни клубове, а в определени дни посетителите могат да се забавляват здравословно със зумба във вода, която е изключително модерна в последно време. Плувният комплекс разполага и с бар, който предоставя възможност за организиране на частни партита и празненства. Плувен басейн „Флора“ е отворен за ползване единствено през летния сезон – от края на май до края на септември всяка година. Спортните клубове подават графици до ръководителя, отговарящ за плувния басейн, за ползване на определени часове за тренировки.","понеделник - неделя: 8:00")
- 
- 
+
+-- Таблица за ценообразуване
+CREATE TABLE IF NOT EXISTS pricing (
+    id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за ценовите записи
+    sports_hall_id INT NOT NULL,            -- ID на спортната зала
+    price_per_hour DECIMAL(10, 2) NOT NULL, -- Цена на час
+    CONSTRAINT fk_pricing_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)
+);
+
+-- Таблица за снимки на спортни зали
+CREATE TABLE IF NOT EXISTS sports_hall_photos (
+    id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за снимките
+    sports_hall_id INT NOT NULL,            -- ID на спортната зала
+    photo_url TEXT NOT NULL,                -- URL на снимката
+    CONSTRAINT fk_photo_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)
+);
+
+-- Таблица за плащания
+CREATE TABLE IF NOT EXISTS payment_transactions (
+    id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за плащането
+    reservation_id INT NOT NULL,            -- ID на резервацията
+    amount DECIMAL(10, 2) NOT NULL,         -- Платена сума
+    payment_date TIMESTAMP NOT NULL,        -- Дата на плащането
+    status VARCHAR(20) DEFAULT 'pending',   -- Статус на плащането (paid, pending, failed)
+    CONSTRAINT fk_payment_reservation FOREIGN KEY (reservation_id) REFERENCES reservations(id)
+);
+
+-- Таблица за отзиви
+CREATE TABLE IF NOT EXISTS reviews (
+    id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за отзива
+    sports_hall_id INT NOT NULL,            -- ID на спортната зала
+    user_id INT NOT NULL,                   -- ID на потребителя
+    rating INT CHECK (rating BETWEEN 1 AND 5), -- Оценка от 1 до 5
+    review TEXT,                            -- Текстов отзив
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата на създаване
+    CONSTRAINT fk_review_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id),
+    CONSTRAINT fk_review_user FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Таблица за удобства на спортните зали
+CREATE TABLE IF NOT EXISTS sports_hall_facilities (
+    sports_hall_id INT NOT NULL,            -- ID на спортната зала
+	facility_id INT NOT NULL,				 -- facility's id
+    CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)
+	CONSTRAINT fk_facility FOREIGN KEY (facility_id) REFERENCES facilities(id)
+);
+--FACILITIES TABLE
+CREATE TABLE IF NOT EXISTS facilities(
+	id SERIAL PRIMARY KEY,--id for each facility
+	name VARCHAR(100)--name of the facility
+);
+--SPORT_HALL_TYPES 
+CREATE TABLE IF NOT EXISTS sports_hall_types(
+	id SERIAL PRIMARY KEY,--id for each type
+	name VARCHAR(100)--type name
+);
