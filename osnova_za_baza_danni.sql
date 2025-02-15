@@ -32,8 +32,12 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(100) NOT NULL,             -- Име на потребителя
     email VARCHAR(100) UNIQUE NOT NULL,     -- Имейл адрес
     password VARCHAR(255) NOT NULL,         -- Парола
-    role VARCHAR(20) DEFAULT 'user',        -- Роля (user, admin)
     phone VARCHAR(15)                       -- Телефонен номер (по избор)
+);
+CREATE TABLE IF NOT EXISTS users_roles(
+	user_id INT NOT NULL,
+	role VARCHAR(10) DEFAULT "user",
+	CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- Таблица за резервации
@@ -102,4 +106,11 @@ CREATE TABLE IF NOT EXISTS facilities(
 CREATE TABLE IF NOT EXISTS sports_hall_types(
 	id SERIAL PRIMARY KEY,--id for each type
 	name VARCHAR(100)--type name
+);
+--SPORT_HALL_MATCHED_WITH_TYPE
+CREATE TABLE IF NOT EXISTS(
+	sports_hall_type_id INT NOT NULL,
+	sports_hall_id INT NOT NULL,
+	CONSTRAINT fk_sports_hall_type FOREIGN KEY (sports_hall_type_id) REFERENCES sports_hall_types(id)
+	CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)
 );
