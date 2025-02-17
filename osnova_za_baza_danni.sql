@@ -1,118 +1,123 @@
-DROP SCHEMA SPORT_RESERVE CASCADE;
-
+--DROP SCHEMA SPORT_RESERVE CASCADE;
 -- Създаване на схема
-CREATE SCHEMA IF NOT EXISTS sport_reserve;
-SET search_path TO sport_reserve;
+CREATE SCHEMA IF NOT EXISTS SPORT_RESERVE;
+
+SET
+	SEARCH_PATH TO SPORT_RESERVE;
 
 -- Таблица за спортни зали
-CREATE TABLE IF NOT EXISTS sports_halls (
-    id SERIAL PRIMARY KEY,                   -- Уникален идентификатор за всяка зала
-    name VARCHAR(50) NOT NULL,              -- Име на спортната зала
-    mobile VARCHAR(15) NOT NULL,            -- Телефон за връзка със спортната зала
-    address TEXT NOT NULL,                  -- Адрес на спортната зала
-    description TEXT,                       -- Описание на спортната зала
-    entry VARCHAR(4) NOT NULL               -- free, paid, both
-);
---SCHEDULE TABLE
-CREATE TABLE IF NOT EXISTS schedule(
-	id SERIAL PRIMARY KEY,-- schedule's id we use in the sport_hall_schedule
-	open TIME(0) NOT NULL,
-	close TIME(0) NOT NULL
+CREATE TABLE IF NOT EXISTS SPORTS_HALLS (
+	ID SERIAL PRIMARY KEY, -- Уникален идентификатор за всяка зала
+	NAME VARCHAR(50) NOT NULL, -- Име на спортната зала
+	MOBILE VARCHAR(15) NOT NULL, -- Телефон за връзка със спортната зала
+	ADDRESS TEXT NOT NULL, -- Адрес на спортната зала
+	DESCRIPTION TEXT, -- Описание на спортната зала
+	ENTRY VARCHAR(4) NOT NULL -- free, paid, both
 );
 
-CREATE TABLE IF NOT EXISTS sport_hall_schedule(
-	sports_hall_id INT NOT NULL,
-	schedule_id INT NOT NULL,
-	CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id),
-	CONSTRAINT fk_schedule FOREIGN KEY (schedule_id) REFERENCES schedule(id)
+--SCHEDULE TABLE
+CREATE TABLE IF NOT EXISTS SCHEDULE (
+	ID SERIAL PRIMARY KEY, -- schedule's id we use in the sport_hall_schedule
+	OPEN TIME(0) NOT NULL,
+	CLOSE TIME(0) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS SPORT_HALL_SCHEDULE (
+	SPORTS_HALL_ID INT NOT NULL,
+	SCHEDULE_ID INT NOT NULL,
+	CONSTRAINT FK_SPORTS_HALL FOREIGN KEY (SPORTS_HALL_ID) REFERENCES SPORTS_HALLS (ID),
+	CONSTRAINT FK_SCHEDULE FOREIGN KEY (SCHEDULE_ID) REFERENCES SCHEDULE (ID)
 );
 
 -- Таблица за потребители
-CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за потребителите
-    name VARCHAR(100) NOT NULL,             -- Име на потребителя
-    email VARCHAR(100) UNIQUE NOT NULL,     -- Имейл адрес
-    password VARCHAR(255) NOT NULL,         -- Парола
-    phone VARCHAR(15)                       -- Телефонен номер (по избор)
+CREATE TABLE IF NOT EXISTS USERS (
+	ID SERIAL PRIMARY KEY, -- Уникален идентификатор за потребителите
+	NAME VARCHAR(100) NOT NULL, -- Име на потребителя
+	EMAIL VARCHAR(100) UNIQUE NOT NULL, -- Имейл адрес
+	PASSWORD VARCHAR(255) NOT NULL, -- Парола
+	PHONE VARCHAR(15) -- Телефонен номер (по избор)
 );
-CREATE TABLE IF NOT EXISTS users_roles(
-	user_id INT NOT NULL,
-	role VARCHAR(10) DEFAULT 'user',
-	CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id)
+
+CREATE TABLE IF NOT EXISTS USERS_ROLES (
+	USER_ID INT NOT NULL,
+	ROLE VARCHAR(10) DEFAULT 'user',
+	CONSTRAINT FK_USER_ID FOREIGN KEY (USER_ID) REFERENCES USERS (ID)
 );
 
 -- Таблица за резервации
-CREATE TABLE IF NOT EXISTS reservations (
-    id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за всяка резервация
-    sports_hall_id INT NOT NULL,            -- ID на спортната зала
-    user_id INT NOT NULL,                   -- ID на потребителя
-    date TIMESTAMP WITHOUT TIME ZONE NOT NULL,    -- Дата и час на резервацията
-	duration INT NOT NULL,					--запазваме колко време ще е резервацията (в часове),
-    description TEXT,                       -- Описание на резервацията
-    CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id), -- Връзка със sports_halls
-    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) -- Връзка с users
+CREATE TABLE IF NOT EXISTS RESERVATIONS (
+	ID SERIAL PRIMARY KEY, -- Уникален идентификатор за всяка резервация
+	SPORTS_HALL_ID INT NOT NULL, -- ID на спортната зала
+	USER_ID INT NOT NULL, -- ID на потребителя
+	DATE TIMESTAMP WITHOUT TIME ZONE NOT NULL, -- Дата и час на резервацията
+	DURATION INT NOT NULL, --запазваме колко време ще е резервацията (в часове),
+	DESCRIPTION TEXT, -- Описание на резервацията
+	CONSTRAINT FK_SPORTS_HALL FOREIGN KEY (SPORTS_HALL_ID) REFERENCES SPORTS_HALLS (ID), -- Връзка със sports_halls
+	CONSTRAINT FK_USER FOREIGN KEY (USER_ID) REFERENCES USERS (ID) -- Връзка с users
 );
 
 -- Таблица за ценообразуване
-CREATE TABLE IF NOT EXISTS pricing (
-    id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за ценовите записи
-    sports_hall_id INT NOT NULL,            -- ID на спортната зала
-    price_per_hour DECIMAL(10, 2) NOT NULL, -- Цена на час
-    CONSTRAINT fk_pricing_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)
+CREATE TABLE IF NOT EXISTS PRICING (
+	ID SERIAL PRIMARY KEY, -- Уникален идентификатор за ценовите записи
+	SPORTS_HALL_ID INT NOT NULL, -- ID на спортната зала
+	PRICE_PER_HOUR DECIMAL(10, 2) NOT NULL, -- Цена на час
+	CONSTRAINT FK_PRICING_SPORTS_HALL FOREIGN KEY (SPORTS_HALL_ID) REFERENCES SPORTS_HALLS (ID)
 );
 
 -- Таблица за снимки на спортни зали
-CREATE TABLE IF NOT EXISTS sports_hall_photos (
-    id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за снимките
-    sports_hall_id INT NOT NULL,            -- ID на спортната зала
-    photo_url TEXT NOT NULL,                -- URL на снимката
-    CONSTRAINT fk_photo_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)
+CREATE TABLE IF NOT EXISTS SPORTS_HALL_PHOTOS (
+	ID SERIAL PRIMARY KEY, -- Уникален идентификатор за снимките
+	SPORTS_HALL_ID INT NOT NULL, -- ID на спортната зала
+	PHOTO_URL TEXT NOT NULL, -- URL на снимката
+	CONSTRAINT FK_PHOTO_SPORTS_HALL FOREIGN KEY (SPORTS_HALL_ID) REFERENCES SPORTS_HALLS (ID)
 );
 
 -- Таблица за плащания
-CREATE TABLE IF NOT EXISTS payment_transactions (
-    id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за плащането
-    reservation_id INT NOT NULL,            -- ID на резервацията
-    amount DECIMAL(10, 2) NOT NULL,         -- Платена сума
-    payment_date TIMESTAMP NOT NULL,        -- Дата на плащането
-    status VARCHAR(20) DEFAULT 'pending',   -- Статус на плащането (paid, pending, failed)
-    CONSTRAINT fk_payment_reservation FOREIGN KEY (reservation_id) REFERENCES reservations(id)
+CREATE TABLE IF NOT EXISTS PAYMENT_TRANSACTIONS (
+	ID SERIAL PRIMARY KEY, -- Уникален идентификатор за плащането
+	RESERVATION_ID INT NOT NULL, -- ID на резервацията
+	AMOUNT DECIMAL(10, 2) NOT NULL, -- Платена сума
+	PAYMENT_DATE TIMESTAMP NOT NULL, -- Дата на плащането
+	STATUS VARCHAR(20) DEFAULT 'pending', -- Статус на плащането (paid, pending, failed)
+	CONSTRAINT FK_PAYMENT_RESERVATION FOREIGN KEY (RESERVATION_ID) REFERENCES RESERVATIONS (ID)
 );
 
 -- Таблица за отзиви
-CREATE TABLE IF NOT EXISTS reviews (
-    id SERIAL PRIMARY KEY,                  -- Уникален идентификатор за отзива
-    sports_hall_id INT NOT NULL,            -- ID на спортната зала
-    user_id INT NOT NULL,                   -- ID на потребителя
-    rating INT CHECK (rating BETWEEN 1 AND 5), -- Оценка от 1 до 5
-    review TEXT,                            -- Текстов отзив
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата на създаване
-    CONSTRAINT fk_review_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id),
-    CONSTRAINT fk_review_user FOREIGN KEY (user_id) REFERENCES users(id)
+CREATE TABLE IF NOT EXISTS REVIEWS (
+	ID SERIAL PRIMARY KEY, -- Уникален идентификатор за отзива
+	SPORTS_HALL_ID INT NOT NULL, -- ID на спортната зала
+	USER_ID INT NOT NULL, -- ID на потребителя
+	RATING INT CHECK (RATING BETWEEN 1 AND 5), -- Оценка от 1 до 5
+	REVIEW TEXT, -- Текстов отзив
+	CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата на създаване
+	CONSTRAINT FK_REVIEW_SPORTS_HALL FOREIGN KEY (SPORTS_HALL_ID) REFERENCES SPORTS_HALLS (ID),
+	CONSTRAINT FK_REVIEW_USER FOREIGN KEY (USER_ID) REFERENCES USERS (ID)
 );
+
 --FACILITIES TABLE
-CREATE TABLE IF NOT EXISTS facilities(
-	id SERIAL PRIMARY KEY,--id for each facility
-	name VARCHAR(100)--name of the facility
+CREATE TABLE IF NOT EXISTS FACILITIES (
+	ID SERIAL PRIMARY KEY, --id for each facility
+	NAME VARCHAR(100) --name of the facility
 );
 
 -- Таблица за удобства на спортните зали
-CREATE TABLE IF NOT EXISTS sports_hall_facilities (
-    sports_hall_id INT NOT NULL,            -- ID на спортната зала
-	facility_id INT NOT NULL,				 -- facility's id
-    CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id),
-	CONSTRAINT fk_facility FOREIGN KEY (facility_id) REFERENCES facilities(id)
+CREATE TABLE IF NOT EXISTS SPORTS_HALL_FACILITIES (
+	SPORTS_HALL_ID INT NOT NULL, -- ID на спортната зала
+	FACILITY_ID INT NOT NULL, -- facility's id
+	CONSTRAINT FK_SPORTS_HALL FOREIGN KEY (SPORTS_HALL_ID) REFERENCES SPORTS_HALLS (ID),
+	CONSTRAINT FK_FACILITY FOREIGN KEY (FACILITY_ID) REFERENCES FACILITIES (ID)
 );
 
 --SPORT_HALL_TYPES 
-CREATE TABLE IF NOT EXISTS sports_hall_types(
-	id SERIAL PRIMARY KEY,--id for each type
-	name VARCHAR(100)--type name
+CREATE TABLE IF NOT EXISTS SPORTS_HALL_TYPES (
+	ID SERIAL PRIMARY KEY, --id for each type
+	NAME VARCHAR(100) --type name
 );
+
 --SPORT_HALL_MATCHED_WITH_TYPEPORT
-CREATE TABLE IF NOT EXISTS sports_hall_matched_with_type(
-	sports_hall_type_id INT NOT NULL,
-	sports_hall_id INT NOT NULL,
-	CONSTRAINT fk_sports_hall_type FOREIGN KEY (sports_hall_type_id) REFERENCES sports_hall_types(id),
-	CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)
+CREATE TABLE IF NOT EXISTS SPORTS_HALL_MATCHED_WITH_TYPE (
+	SPORTS_HALL_TYPE_ID INT NOT NULL,
+	SPORTS_HALL_ID INT NOT NULL,
+	CONSTRAINT FK_SPORTS_HALL_TYPE FOREIGN KEY (SPORTS_HALL_TYPE_ID) REFERENCES SPORTS_HALL_TYPES (ID),
+	CONSTRAINT FK_SPORTS_HALL FOREIGN KEY (SPORTS_HALL_ID) REFERENCES SPORTS_HALLS (ID)
 );
