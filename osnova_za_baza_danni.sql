@@ -1,4 +1,5 @@
 DROP SCHEMA SPORT_RESERVE CASCADE;
+
 -- Създаване на схема
 CREATE SCHEMA IF NOT EXISTS sport_reserve;
 SET search_path TO sport_reserve;
@@ -22,7 +23,7 @@ CREATE TABLE IF NOT EXISTS schedule(
 CREATE TABLE IF NOT EXISTS sport_hall_schedule(
 	sports_hall_id INT NOT NULL,
 	schedule_id INT NOT NULL,
-	CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)
+	CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id),
 	CONSTRAINT fk_schedule FOREIGN KEY (schedule_id) REFERENCES schedule(id)
 );
 
@@ -36,7 +37,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 CREATE TABLE IF NOT EXISTS users_roles(
 	user_id INT NOT NULL,
-	role VARCHAR(10) DEFAULT "user",
+	role VARCHAR(10) DEFAULT 'user',
 	CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
@@ -89,28 +90,29 @@ CREATE TABLE IF NOT EXISTS reviews (
     CONSTRAINT fk_review_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id),
     CONSTRAINT fk_review_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
-
--- Таблица за удобства на спортните зали
-CREATE TABLE IF NOT EXISTS sports_hall_facilities (
-    sports_hall_id INT NOT NULL,            -- ID на спортната зала
-	facility_id INT NOT NULL,				 -- facility's id
-    CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)
-	CONSTRAINT fk_facility FOREIGN KEY (facility_id) REFERENCES facilities(id)
-);
 --FACILITIES TABLE
 CREATE TABLE IF NOT EXISTS facilities(
 	id SERIAL PRIMARY KEY,--id for each facility
 	name VARCHAR(100)--name of the facility
 );
+
+-- Таблица за удобства на спортните зали
+CREATE TABLE IF NOT EXISTS sports_hall_facilities (
+    sports_hall_id INT NOT NULL,            -- ID на спортната зала
+	facility_id INT NOT NULL,				 -- facility's id
+    CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id),
+	CONSTRAINT fk_facility FOREIGN KEY (facility_id) REFERENCES facilities(id)
+);
+
 --SPORT_HALL_TYPES 
 CREATE TABLE IF NOT EXISTS sports_hall_types(
 	id SERIAL PRIMARY KEY,--id for each type
 	name VARCHAR(100)--type name
 );
---SPORT_HALL_MATCHED_WITH_TYPE
-CREATE TABLE IF NOT EXISTS(
+--SPORT_HALL_MATCHED_WITH_TYPEPORT
+CREATE TABLE IF NOT EXISTS sports_hall_matched_with_type(
 	sports_hall_type_id INT NOT NULL,
 	sports_hall_id INT NOT NULL,
-	CONSTRAINT fk_sports_hall_type FOREIGN KEY (sports_hall_type_id) REFERENCES sports_hall_types(id)
+	CONSTRAINT fk_sports_hall_type FOREIGN KEY (sports_hall_type_id) REFERENCES sports_hall_types(id),
 	CONSTRAINT fk_sports_hall FOREIGN KEY (sports_hall_id) REFERENCES sports_halls(id)
 );
